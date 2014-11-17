@@ -20,7 +20,13 @@
 #include <algorithm>
 #include <fstream>
 
+#include <ilcplex/ilocplex.h>
+#include <ilcplex/ilocplexi.h>
+#include "gsl/gsl_rng.h"
+#include "gsl/gsl_randist.h"
+
 typedef unsigned int ID;
+typedef unsigned int uint;
 
 using namespace std;
 
