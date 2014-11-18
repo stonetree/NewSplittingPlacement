@@ -24,6 +24,9 @@ public:
 	double getServOccupied(void){return server_occupied;}
 
 public:
+	double getRemainingCapacity(void){return server_capacity - server_occupied;}
+
+public:
 	cServer(void);
 	cServer(ID _id,double _weight,double _capacity,double _occupied = 0):server_id(_id),server_weight(_weight),server_capacity(_capacity),server_occupied(_occupied){}
 	cServer(const cServer& _server);

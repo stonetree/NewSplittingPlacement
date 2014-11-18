@@ -2,6 +2,7 @@
 #include "common.h"
 #include "cServer.h"
 #include "cVMRequest.h"
+#include "cCplexRuntime.h"
 
 
 void initializeServers(vector<cServer>& _server_vec)
@@ -40,7 +41,7 @@ void initializeVMRequests(vector<cVMRequest>& _vmrequests_vec)
 		}
 		else
 		{
-			_vmrequests_vec.push_back(cVMRequest((ID)request_index,70));
+			_vmrequests_vec.push_back(cVMRequest((ID)request_index,55));
 		}
 	}
 
@@ -61,7 +62,7 @@ void initializeVMRequests(vector<cVMRequest>& _vmrequests_vec)
 	return;
 }
 
-void initializeResourceRequest(map<pair<uint,uint>,double>& _resource_request)
+void initializeResourceRequest(map<pair<double,uint>,double>& _resource_request)
 {
 	_resource_request.clear();
 
@@ -79,9 +80,14 @@ void initializeResourceRequest(map<pair<uint,uint>,double>& _resource_request)
 }
 	
 
-void allocateVMRequest(cVMRequest& _vmrequest,vector<cServer>& _server_vec)
+void allocateVMRequest(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request)
 {
-	
+	cCplexRuntime *p_cplex_runingtime = new cCplexRuntime;
+	p_cplex_runingtime->VarInit(_vmrequest,_server_vec,_resource_request);
+	p_cplex_runingtime->ModelConstruction(_vmrequest,_server_vec);
+	p_cplex_runingtime->ProblemSolve(_vmrequest,_server_vec,_resource_request);
+
+	free(p_cplex_runingtime);
 	
 	return;
 }

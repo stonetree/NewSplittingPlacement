@@ -9,7 +9,7 @@
 uint total_num_profile_55 = 50;
 uint total_num_profile_70 = 50;
 uint total_num_servers = 100;
-uint total_server_capacity = 100;
+double total_server_capacity = 100;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -24,7 +24,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	initializeVMRequests(vmrequests_vec);
 
 	//resource requirement
-	map<pair<uint,uint>,double> resource_request;
+	map<pair<double,uint>,double> resource_request;
 	
 	//initialize the resource request
 	initializeResourceRequest(resource_request);
@@ -33,9 +33,28 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	for (iter_vm_request = vmrequests_vec.begin();iter_vm_request != vmrequests_vec.end();iter_vm_request++)
 	{
-		allocateVMRequest(*iter_vm_request,server_vec);
+		allocateVMRequest(*iter_vm_request,server_vec,resource_request);
 	}
 
+	ofstream result_output;
+	result_output.open("output.txt",ios_base::app);
+	if (!result_output)
+	{
+		cerr<<"unable to open output file: optimization.txt";
+		exit(-1);
+	} 
+
+	uint used_server_count = 0;
+	vector<cServer>::iterator iter_server = server_vec.begin();
+	for (;iter_server != server_vec.end();iter_server++)
+	{
+		if (0 != iter_server->getServOccupied())
+		{
+			used_server_count++;
+		}
+	}
+	result_output<<used_server_count<<endl;
+	result_output.close();
 	
 	return 0;
 }
