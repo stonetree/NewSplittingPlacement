@@ -9,6 +9,8 @@ double splitting_K_2 = 0;
 double splitting_K_3 = 0;
 double splitting_K_4 = 0;
 
+const double EulerConstant = std::exp(1.0);
+
 cCplexRuntime::cCplexRuntime(void)
 {
 	Model = IloModel(env);
@@ -132,6 +134,7 @@ void cCplexRuntime::ModelConstruction(cVMRequest& _request,vector<cServer>& _ser
 			}
 		}
 		expr2=_server_vec[j].getRemainingCapacity()*VarZ[j];
+		//expr2=_server_vec[j].getRemainingCapacity();
 		Model.add(expr1<=expr2);
 		expr1.end();
 		expr2.end();
@@ -236,10 +239,11 @@ void cCplexRuntime::ModelConstruction(cVMRequest& _request,vector<cServer>& _ser
 
 	for (i=0;i<m_SizeI;i++)
 	{
-		//if (i>=m_SizeI*splitable_percentage)
-		//{
-		//	Model.add(VarY[i][0]==1);
-		//}
+		//if the request is non-splittable the original resource is the only choice available
+		if (!_request.getVMRequestSplittable())
+		{
+			Model.add(VarY[i][0]==1);
+		}
 
 		IloExpr expr9(env);
 		for (k=0;k<m_SizeK;k++)
@@ -292,7 +296,7 @@ void cCplexRuntime::ProblemSolve(cVMRequest& _request,vector<cServer>& _server_v
 	cout<<"Problem solving is beginning......"<<endl;
 
 	Cplex.extract(Model);
-	Cplex.exportModel("NR-MF.lp");
+	//Cplex.exportModel("NR-MF.lp");
 	IloBool  flag = Cplex.solve();
 	if (flag == IloTrue)
 	{
@@ -301,9 +305,10 @@ void cCplexRuntime::ProblemSolve(cVMRequest& _request,vector<cServer>& _server_v
 	env.out() << "Solution status = " << Cplex.getStatus() << endl;
 	env.out() << "Solution value = " << Cplex.getObjValue() << endl;
 
-	result_output<<" "<<Cplex.getStatus()<<" "<<Cplex.getObjValue()<<endl;
+	//result_output<<" "<<Cplex.getStatus()<<" "<<Cplex.getObjValue()<<endl;
 	result_output.close();
 
+	//get placement variables
 	for (i=0;i<m_SizeI;i++)
 	{
 		for (j=0;j<m_SizeJ;j++)
@@ -316,12 +321,20 @@ void cCplexRuntime::ProblemSolve(cVMRequest& _request,vector<cServer>& _server_v
 					{
 						(_server_vec[j]).setServOccupied((_server_vec[j]).getServOccupied()+_resource_request[make_pair(_request.getOriginalResRequest(),(uint)(k+1))]);
 						(_server_vec[j]).setServWeight(1/(total_server_capacity*exp(((_server_vec[j]).getServOccupied()/total_server_capacity))));
+						//(_server_vec[j]).setServWeight(1/(total_server_capacity*log(EulerConstant + ((_server_vec[j]).getServOccupied()/total_server_capacity))));
+						//double new_weight = log(1 + 0.01 + ((_server_vec[j]).getServOccupied()/total_server_capacity)) / log(1 + 0.01);
+						//(_server_vec[j]).setServWeight(1/(total_server_capacity*new_weight));
 					}
 					
 				}
 			}
 		}
 	}
+
+	Cplex.clear();
+	Model.end();
+	Cplex.end();
+	env.end();
 
 	return;
 

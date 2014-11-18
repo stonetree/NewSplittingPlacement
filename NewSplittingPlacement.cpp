@@ -7,55 +7,56 @@
 #include "cServer.h"
 
 uint total_num_profile_55 = 50;
-uint total_num_profile_70 = 50;
-uint total_num_servers = 100;
+uint total_num_profile_70 = 0;
+uint total_num_servers = 50;
 double total_server_capacity = 100;
+double splitable_percentage = 1;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//servers
-	vector<cServer>  server_vec;
+	//store the resource required by the original vm or its svms
+	vector<vector<double>> resource_request_vec;
 
-	//Initialize servers
-	initializeServers(server_vec);
-
-	//vm requests
-	vector<cVMRequest> vmrequests_vec;
-	initializeVMRequests(vmrequests_vec);
-
-	//resource requirement
-	map<pair<double,uint>,double> resource_request;
-	
-	//initialize the resource request
-	initializeResourceRequest(resource_request);
-
-	vector<cVMRequest>::iterator iter_vm_request;
-
-	for (iter_vm_request = vmrequests_vec.begin();iter_vm_request != vmrequests_vec.end();iter_vm_request++)
+	//input the info about resource requests
+	if (initializeInputFile(resource_request_vec))
 	{
-		allocateVMRequest(*iter_vm_request,server_vec,resource_request);
+		cout<<"Can not locate the input file"<<endl;
+		exit(0);
 	}
 
-	ofstream result_output;
-	result_output.open("output.txt",ios_base::app);
-	if (!result_output)
-	{
-		cerr<<"unable to open output file: optimization.txt";
-		exit(-1);
-	} 
+	vector<vector<double>>::iterator input_iterator = resource_request_vec.begin();
 
-	uint used_server_count = 0;
-	vector<cServer>::iterator iter_server = server_vec.begin();
-	for (;iter_server != server_vec.end();iter_server++)
+	for (;input_iterator != resource_request_vec.end();input_iterator++)
 	{
-		if (0 != iter_server->getServOccupied())
+		//servers
+		vector<cServer>  server_vec;
+
+		//Initialize servers
+		initializeServers(server_vec);
+
+		//vm requests
+		vector<cVMRequest> vmrequests_vec;
+		initializeVMRequests(vmrequests_vec);
+
+		//resource requirement
+		map<pair<double,uint>,double> resource_request;
+
+		//initialize the resource request
+		initializeResourceRequest(*input_iterator,resource_request);
+
+		vector<cVMRequest>::iterator iter_vm_request;
+
+		//allocate vm requests
+		for (iter_vm_request = vmrequests_vec.begin();iter_vm_request != vmrequests_vec.end();iter_vm_request++)
 		{
-			used_server_count++;
+			allocateVMRequest(*iter_vm_request,server_vec,resource_request);
 		}
+
+
+		//collect output data
+		outputResults((*input_iterator)[0],server_vec);
 	}
-	result_output<<used_server_count<<endl;
-	result_output.close();
-	
+		
 	return 0;
 }
 
