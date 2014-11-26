@@ -11,6 +11,9 @@ private:
 	double server_occupied;
 
 public:
+	map<uint,double> server_time_weight;
+
+public:
 	void setServID(ID _id) {server_id = _id;}
 	ID   getServID(void) {return server_id;}
 

@@ -123,8 +123,10 @@ void initializeVMRequests(vector<cVMRequest>& _vmrequests_vec)
 	double double_splittable;
 	bool bool_splittable;
 	double lambda;
+	uint arrival_time,duration_time;
 	//gsl_rng_type * T_55,T_70,T_80,T_90,T_100;
 	gsl_rng * r_55,*r_70,*r_80,*r_90,*r_100;
+	gsl_rng *r_arriva_time,*r_duration_time;
 
 	_vmrequests_vec.clear();
 
@@ -141,11 +143,17 @@ void initializeVMRequests(vector<cVMRequest>& _vmrequests_vec)
 
 	T_splittable = gsl_rng_default;
 	r_splittable = gsl_rng_alloc(T_splittable);
+
+	r_arriva_time = gsl_rng_alloc(T);
+	r_duration_time = gsl_rng_alloc(T);
 	
 	for (request_index = 1;request_index <= total_num_profile_55 + total_num_profile_70;request_index++)
 	{
 		random_num = gsl_rng_uniform_int (r, 2);
 		double_splittable = gsl_rng_uniform(r_splittable);
+
+		arrival_time = gsl_rng_uniform_int(r_duration_time, 10) + 5;
+		duration_time = gsl_rng_uniform_int(r_duration_time, 10) + 5;
 
 		//Where the request is splittable.
 		if (double_splittable <= splitable_percentage)
@@ -162,31 +170,31 @@ void initializeVMRequests(vector<cVMRequest>& _vmrequests_vec)
 		{
 			//original resource request = 55;
 			lambda = gsl_ran_flat(r_55,lambda_low_55,lambda_high_55);
-			_vmrequests_vec.push_back(cVMRequest((ID)request_index,55,lambda,bool_splittable));
+			_vmrequests_vec.push_back(cVMRequest((ID)request_index,55,lambda,arrival_time,duration_time,bool_splittable));
 		}
 		else if (random_num == 1)
 		{
 			//original resource requirement = 70;
 			lambda = gsl_ran_flat(r_70,lambda_low_70,lambda_high_70);
-			_vmrequests_vec.push_back(cVMRequest((ID)request_index,70,lambda,bool_splittable));
+			_vmrequests_vec.push_back(cVMRequest((ID)request_index,70,lambda,arrival_time,duration_time,bool_splittable));
 		}
 		else if (random_num == 2)
 		{
 			//original resource requirement = 80;
 			lambda = gsl_ran_flat(r_80,lambda_low_80,lambda_high_80);
-			_vmrequests_vec.push_back(cVMRequest((ID)request_index,80,lambda,bool_splittable));
+			_vmrequests_vec.push_back(cVMRequest((ID)request_index,80,lambda,arrival_time,duration_time,bool_splittable));
 		}
 		else if (random_num == 3)
 		{
 			//original resource requirement = 90;
 			lambda = gsl_ran_flat(r_90,lambda_low_90,lambda_high_90);
-			_vmrequests_vec.push_back(cVMRequest((ID)request_index,90,lambda,bool_splittable));
+			_vmrequests_vec.push_back(cVMRequest((ID)request_index,90,lambda,arrival_time,duration_time,bool_splittable));
 		}
 		else
 		{
 			//original resource requirement = 100;
 			lambda = gsl_ran_flat(r_100,lambda_low_100,lambda_high_100);
-			_vmrequests_vec.push_back(cVMRequest((ID)request_index,100,lambda,bool_splittable));
+			_vmrequests_vec.push_back(cVMRequest((ID)request_index,100,lambda,arrival_time,duration_time,bool_splittable));
 		}
 	}
 
@@ -197,6 +205,8 @@ void initializeVMRequests(vector<cVMRequest>& _vmrequests_vec)
 	gsl_rng_free(r_80);
 	gsl_rng_free(r_90);
 	gsl_rng_free(r_100);
+	gsl_rng_free(r_arriva_time);
+	gsl_rng_free(r_duration_time);
 	
 	
 	
