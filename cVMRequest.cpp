@@ -25,6 +25,7 @@ cVMRequest& cVMRequest::operator=(const cVMRequest& _vm_request)
 		num_svm = _vm_request.num_svm;
 		svm_res_request = _vm_request.svm_res_request;
 		splittable = _vm_request.splittable;
+		lambda = _vm_request.lambda;
 	}
 
 	return *this;

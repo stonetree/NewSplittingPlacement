@@ -11,6 +11,7 @@ private:
 	int  num_svm;
 	double svm_res_request;
 	bool splittable;
+	double lambda;
 
 public:
 	vector<cServer*> host_server_vec;
@@ -31,10 +32,13 @@ public:
 	void setVMRequestSplittable(bool _splittable){splittable = _splittable;}
 	bool getVMRequestSplittable(void){return splittable;}
 
+	void setLambda(double _lambda){lambda = _lambda;}
+	double getLambda(void){return lambda;}
+
 public:
 	cVMRequest(void);
-	cVMRequest(ID _id,double _original_request,bool _splittable = false,int _num_svm = 0,int _svm_res_request = 0):request_id(_id),original_res_request(_original_request),\
-		num_svm(_num_svm),svm_res_request(_svm_res_request),splittable(_splittable){}
+	cVMRequest(ID _id,double _original_request,double _lambda,bool _splittable = false,int _num_svm = 0,int _svm_res_request = 0):request_id(_id),original_res_request(_original_request),\
+		lambda(_lambda),num_svm(_num_svm),svm_res_request(_svm_res_request),splittable(_splittable){}
 	cVMRequest(const cVMRequest& _vm_request);
 	cVMRequest& operator=(const cVMRequest& _vm_request);
 	~cVMRequest(void);

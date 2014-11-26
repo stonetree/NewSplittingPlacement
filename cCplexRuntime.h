@@ -25,8 +25,11 @@ public:
 	IloNum     ParamC;
 
 	void VarInit(cVMRequest& _request,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
+	void VarInitGlobal(vector<cVMRequest>& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
 	void ModelConstruction(cVMRequest& _request,vector<cServer>& _server_vec);
+	void ModelConstructionGlobal(vector<cVMRequest>& _vmrequest,vector<cServer>& _server_vec);
 	void ProblemSolve(cVMRequest& _request,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
+	void ProblemSolveGlobal(vector<cVMRequest>& _request,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
 
 public:
 	cCplexRuntime(void);

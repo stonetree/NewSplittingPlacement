@@ -25,6 +25,7 @@ public:
 
 public:
 	double getRemainingCapacity(void){return server_capacity - server_occupied;}
+	bool enoughCapacity(double _required){return _required <= (server_capacity - server_occupied);}
 
 public:
 	cServer(void);
