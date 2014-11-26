@@ -83,6 +83,8 @@ void cCplexRuntime::VarInit(cVMRequest& _request,vector<cServer>& _server_vec,ma
 
 	//variety z indicate which bins have been used
 	VarZ = IloIntVarArray(env,m_SizeJ,0,1);
+	//VarZ = TwoDMParam(env,m_SizeJ);
+	
 
 	//parameter R indicates the resources requirement of each sub or original requirement
 	//the data is obtained from the previous experiments
@@ -94,16 +96,13 @@ void cCplexRuntime::VarInit(cVMRequest& _request,vector<cServer>& _server_vec,ma
 	}
 
 
-	//if (num_profile_55 != 0)
+	for (i = 0; i < total_request; i++)
 	{
-		for (i = 0; i < total_request; i++)
+		for (k = 0; k<m_SizeK;k++)
 		{
-			for (k = 0; k<m_SizeK;k++)
-			{
-				//ParamR[i][k]=_resource_request[make_pair(splitting_K_1,k+1)];
-				double tem = (resourceRequirement[original_request])(original_request,lambda,k+1);
-				ParamR[i][k]= tem;
-			}
+			//ParamR[i][k]=_resource_request[make_pair(splitting_K_1,k+1)];
+			double tem = (resourceRequirement[original_request])(original_request,lambda,k+1);
+			ParamR[i][k]= tem;
 		}
 	}
 

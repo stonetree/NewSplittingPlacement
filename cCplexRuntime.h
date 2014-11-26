@@ -16,6 +16,7 @@ public:
 	FourDM   VarX;
 	TwoDM    VarY;
 	IloIntVarArray VarZ;
+	//TwoDMParam VarZ;
 	IloInt    ParamN;
 	IloInt    m_SizeI;
 	IloInt    m_SizeJ;
