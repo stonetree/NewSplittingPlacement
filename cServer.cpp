@@ -122,3 +122,17 @@ double cServer::getTimeWeight(uint _time,uint _duration_time)
 	
 	return tem_serv_weight;
 }
+
+bool cServer::enoughCapacity(uint _arrival_time,uint _departure_time,double _required)
+{
+	bool enough_capacity = true;
+	for (;_arrival_time<_departure_time;_arrival_time++)
+	{
+		if (_required > getTimeResidualCapacity(_arrival_time))
+		{
+			enough_capacity = false;
+		}
+	}
+	
+	return enough_capacity;
+}

@@ -53,4 +53,5 @@ extern void initializeInputParameters(vector<double>& _input_parameter);
 extern void loadResourceRequirementfunc();
 extern void releaseUsedResource(cVMRequest& _request,vector<cServer>& _server_vec);
 extern void updateServWeight(cVMRequest& _request,vector<cServer>& _server_vec);
+extern void updateServCandidate(cVMRequest& _vmrequest);
 

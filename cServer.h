@@ -29,7 +29,7 @@ public:
 
 public:
 	double getRemainingCapacity(void){return server_capacity - server_occupied;}
-	bool enoughCapacity(uint _time,double _required){return _required <= getTimeResidualCapacity(_time);}
+	bool enoughCapacity(uint _arrival_time,uint _departure_time,double _required);
 	double getTimeResidualCapacity(uint _time_slot);
 	void setTimeResourceUsed(cVMRequest& _request,double _resource_used);
 	void setTimeWeight(cVMRequest& _request,double _resource_used);

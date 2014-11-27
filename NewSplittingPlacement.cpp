@@ -91,11 +91,10 @@ int _tmain(int argc, _TCHAR* argv[])
 				allocateVMRequestGreedy(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
 				request_index++;
 			}
-			//else
-			//{
-			//	releaseUsedResource(*(iter_event->second.getRequestPoint()),server_vec);
-			//	updateServWeight(*(iter_event->second.getRequestPoint()),server_vec);
-			//}
+			else
+			{
+				updateServCandidate(*(iter_event->second.getRequestPoint()));
+			}
 		}
 		//collect output data
 		outputResults((*input_iterator)[0],server_vec);
