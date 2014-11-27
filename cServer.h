@@ -12,6 +12,7 @@ private:
 
 public:
 	map<uint,double> server_time_weight;
+	map<uint,double> server_time_residual;
 
 public:
 	void setServID(ID _id) {server_id = _id;}
@@ -28,7 +29,11 @@ public:
 
 public:
 	double getRemainingCapacity(void){return server_capacity - server_occupied;}
-	bool enoughCapacity(double _required){return _required <= (server_capacity - server_occupied);}
+	bool enoughCapacity(uint _time,double _required){return _required <= getTimeResidualCapacity(_time);}
+	double getTimeResidualCapacity(uint _time_slot);
+	void setTimeResourceUsed(cVMRequest& _request,double _resource_used);
+	void setTimeWeight(cVMRequest& _request,double _resource_used);
+	double getTimeWeight(uint _time,uint _duration_time);
 
 public:
 	cServer(void);

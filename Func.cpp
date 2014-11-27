@@ -3,6 +3,7 @@
 #include "cServer.h"
 #include "cVMRequest.h"
 #include "cCplexRuntime.h"
+#include "cEvent.h"
 
 
 
@@ -246,11 +247,24 @@ void initializeResourceRequest(vector<double>& _input_cap,map<pair<double,uint>,
 	return;
 }
 	
-
-void allocateVMRequest(vector<cVMRequest>& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request)
+void initializeEvent(multimap<uint,cEvent>& _event_map,vector<cVMRequest>& _request_vec)
 {
+	_event_map.clear();
+
+	vector<cVMRequest>::iterator iter_request_vec = _request_vec.begin();
+	for (;iter_request_vec != _request_vec.end();iter_request_vec++)
+	{
+		_event_map.insert(make_pair(iter_request_vec->getArrivalTime(),cEvent(ARRIVAL,&(*iter_request_vec))));
+		_event_map.insert(make_pair(iter_request_vec->getDepartureTime(),cEvent(DEPARTURE,&(*iter_request_vec))));
+	}
+	
 	return;
 }
+
+//void allocateVMRequest(vector<cVMRequest>& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request)
+//{
+//	return;
+//}
 
 void allocateVMRequest(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request)
 {
@@ -264,17 +278,17 @@ void allocateVMRequest(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<p
 	return;
 }
 
-void allocateGlobalVMRequest(vector<cVMRequest>& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request)
-{
-	cCplexRuntime *p_cplex_runingtime = new cCplexRuntime;
-	p_cplex_runingtime->VarInitGlobal(_vmrequest,_server_vec,_resource_request);
-	p_cplex_runingtime->ModelConstructionGlobal(_vmrequest,_server_vec);
-	p_cplex_runingtime->ProblemSolveGlobal(_vmrequest,_server_vec,_resource_request);
-
-	free(p_cplex_runingtime);
-
-	return;
-}
+//void allocateGlobalVMRequest(vector<cVMRequest>& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request)
+//{
+//	cCplexRuntime *p_cplex_runingtime = new cCplexRuntime;
+//	p_cplex_runingtime->VarInitGlobal(_vmrequest,_server_vec,_resource_request);
+//	p_cplex_runingtime->ModelConstructionGlobal(_vmrequest,_server_vec);
+//	p_cplex_runingtime->ProblemSolveGlobal(_vmrequest,_server_vec,_resource_request);
+//
+//	free(p_cplex_runingtime);
+//
+//	return;
+//}
 
 void allocateVMRequestGreedy(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request)
 {
@@ -284,6 +298,9 @@ void allocateVMRequestGreedy(cVMRequest& _vmrequest,vector<cServer>& _server_vec
 	double lambda = _vmrequest.getLambda();
 	double svm_request;
 	double num_svm;
+	uint time_slot,arrival_time,duration_time;
+	arrival_time = _vmrequest.getArrivalTime();
+	duration_time = _vmrequest.getDurationTime();
 
 	//find servers with enough capacity from those servers that have already been used.
 	uint i;
@@ -295,12 +312,22 @@ void allocateVMRequestGreedy(cVMRequest& _vmrequest,vector<cServer>& _server_vec
 	}
 	for (i = 1;i<=max_num_svm;i++)
 	{
+
 		num_svm = i;
 		svm_request = (resourceRequirement[_vmrequest.getOriginalResRequest()])(_vmrequest.getOriginalResRequest(),_vmrequest.getLambda(),i);
 		map<ID,cServer*>::iterator iter_used_servers = usedServers.begin();
 		for (;iter_used_servers != usedServers.end();iter_used_servers++)
 		{
-			if ((iter_used_servers->second)->enoughCapacity(svm_request))
+			bool enough_capacity = true;
+			for (time_slot = 0;time_slot<duration_time;time_slot++)
+			{
+				if (!(iter_used_servers->second)->enoughCapacity(time_slot + arrival_time,svm_request))
+				{
+					enough_capacity = false;
+				}
+			}
+
+			if (enough_capacity == true)
 			{
 				tobePlaced.push_back(iter_used_servers->second);
 			}
@@ -309,25 +336,39 @@ void allocateVMRequestGreedy(cVMRequest& _vmrequest,vector<cServer>& _server_vec
 			{
 				//find enough capacity from already being used servers
 				_vmrequest.setSVMNumber(i);
+				_vmrequest.setSVMResRequest(svm_request);
 				vector<cServer*>::iterator iter_place_servers = tobePlaced.begin();
 				for (;iter_place_servers != tobePlaced.end();iter_place_servers++)
 				{
-					(*iter_place_servers)->setServOccupied((*iter_place_servers)->getServOccupied() + svm_request);
+					(*iter_place_servers)->setTimeResourceUsed(_vmrequest,svm_request);
+					_vmrequest.host_server_vec.push_back(*iter_place_servers);
 				}
 
 				return;
 			}
 		}
-	}
+		
+	}//
 
 	//place the current request on to an unused server
 	map<ID,cServer*>::iterator iter_unused_servers = unusedServers.begin();
 	for (;iter_unused_servers != unusedServers.end();iter_unused_servers++)
 	{
-		if (iter_unused_servers->second->enoughCapacity(_vmrequest.getOriginalResRequest()))
+		bool enough_capacity = true;
+		for (time_slot = 0;time_slot<duration_time;time_slot++)
 		{
-			iter_unused_servers->second->setServOccupied(iter_unused_servers->second->getServOccupied() + _vmrequest.getOriginalResRequest());
-
+			if (!(iter_unused_servers->second)->enoughCapacity(time_slot + arrival_time,svm_request))
+			{
+				enough_capacity = false;
+			}
+		}
+		if (enough_capacity == true)
+		{
+			//iter_unused_servers->second->setServOccupied(iter_unused_servers->second->getServOccupied() + _vmrequest.getOriginalResRequest());
+			iter_unused_servers->second->setTimeResourceUsed(_vmrequest,_vmrequest.getOriginalResRequest());
+			_vmrequest.setSVMNumber(1);
+			_vmrequest.setSVMResRequest(_vmrequest.getOriginalResRequest());
+			_vmrequest.host_server_vec.push_back(iter_unused_servers->second);
 			usedServers.insert(make_pair(iter_unused_servers->second->getServID(),iter_unused_servers->second));
 			unusedServers.erase(iter_unused_servers);
 
@@ -350,18 +391,56 @@ void outputResults(double _arai,vector<cServer>& _server_vec)
 
 	uint used_server_count = 0;
 	double average_utilization = 0;
-	vector<cServer>::iterator iter_server = _server_vec.begin();
-	for (;iter_server != _server_vec.end();iter_server++)
+	vector<cServer>::iterator iter_server;
+	map<uint,double>::iterator iter_server_used;
+
+	for (iter_server = _server_vec.begin();iter_server != _server_vec.end();iter_server++)
 	{
-		if (0 != iter_server->getServOccupied())
+		uint time_slot;
+		for (time_slot = 0;time_slot < total_time_slot;time_slot++)
 		{
-			used_server_count++;
+			iter_server_used = iter_server->server_time_residual.find(time_slot);
+			if (iter_server_used != iter_server->server_time_residual.end())
+			{
+				used_server_count++;
+				//break;
+			}
+		}
+	}
+
+
+	for (iter_server = _server_vec.begin();iter_server != _server_vec.end();iter_server++)
+	{
+		uint time_slot;
+		for (time_slot = 0;time_slot < total_time_slot;time_slot++)
+		{
+			iter_server_used = iter_server->server_time_residual.find(time_slot);
+			if (iter_server_used != iter_server->server_time_residual.end())
+			{
+				average_utilization += iter_server_used->second;
+			}
 		}
 
-		average_utilization += iter_server->getServOccupied();
+		
 	}
 
 	result_output<<_arai<<" "<<used_server_count<<" "<<average_utilization/used_server_count<<endl;
 	result_output.close();
 	return; 
+}
+
+void releaseUsedResource(cVMRequest& _request,vector<cServer>& _server_vec)
+{
+	vector<cServer*>::iterator iter_p_server = _request.host_server_vec.begin();
+	for (;iter_p_server != _request.host_server_vec.end();iter_p_server++)
+	{
+		
+	}
+	
+	
+	return;
+}
+void updateServWeight(cVMRequest& _request,vector<cServer>& _server_vec)
+{
+	return;
 }

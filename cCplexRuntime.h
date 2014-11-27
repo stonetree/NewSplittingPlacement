@@ -15,8 +15,8 @@ public:
 	IloCplex Cplex;
 	FourDM   VarX;
 	TwoDM    VarY;
-	IloIntVarArray VarZ;
-	//TwoDMParam VarZ;
+	//IloIntVarArray VarZ;
+	TwoDM VarZ;
 	IloInt    ParamN;
 	IloInt    m_SizeI;
 	IloInt    m_SizeJ;
