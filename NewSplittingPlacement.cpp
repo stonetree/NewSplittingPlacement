@@ -89,6 +89,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				cout<<"The "<<request_index<<"th request"<<endl;
 				//allocateVMRequest(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
 				allocateVMRequestGreedy(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
+				//allocateVMRequestFFS(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
 				request_index++;
 			}
 			else

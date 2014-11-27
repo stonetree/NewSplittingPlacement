@@ -48,6 +48,18 @@ double cServer::getTimeResidualCapacity(uint _time_slot)
 		return server_capacity;
 }
 
+double cServer::getTimeResidualCapacity(uint _arrival_time,uint _departure_time)
+{
+	double residual_capacity = 0;
+	map<uint,double>::iterator iter_time_residual_capacity;
+	for (;_arrival_time<_departure_time;_arrival_time++)
+	{
+		residual_capacity += getTimeResidualCapacity(_arrival_time);	
+	}
+	
+	return residual_capacity;
+}
+
 void cServer::setTimeResourceUsed(cVMRequest& _request,double _resource_used)
 {
 	map<uint,double>::iterator iter_time_resource_used;

@@ -47,6 +47,7 @@ extern void initializeEvent(multimap<uint,cEvent>& _event_map,vector<cVMRequest>
 extern void allocateVMRequest(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
 //extern void allocateGlobalVMRequest(vector<cVMRequest>& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
 extern void allocateVMRequestGreedy(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
+extern void allocateVMRequestFFS(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
 extern void outputResults(double _arai,vector<cServer>& _server_vec);
 extern int initializeInputFile(vector<vector<double>>& _resource_request_vec);
 extern void initializeInputParameters(vector<double>& _input_parameter);

@@ -475,3 +475,91 @@ void updateServCandidate(cVMRequest& _vmrequest)
 	
 	return;
 }
+
+void allocateVMRequestFFS(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request)
+{
+	multimap<double,cServer*> server_candidate_sorted;
+	
+	vector<cServer*> tobePlaced;
+
+	double original_request = _vmrequest.getOriginalResRequest();
+	double lambda = _vmrequest.getLambda();
+	double svm_request;
+	uint num_svm;
+	uint time_slot,arrival_time,duration_time,departure_time;
+	arrival_time = _vmrequest.getArrivalTime();
+	duration_time = _vmrequest.getDurationTime();
+	departure_time = _vmrequest.getDepartureTime();
+
+	//find servers with enough capacity from those servers that have already been used.
+
+	uint max_num_svm = 4;
+	if (!_vmrequest.getVMRequestSplittable())
+	{
+		max_num_svm = 1;
+	}
+	for (num_svm = 1;num_svm<=max_num_svm;num_svm++)
+	{
+		tobePlaced.clear();
+		server_candidate_sorted.clear();
+
+		svm_request = (resourceRequirement[_vmrequest.getOriginalResRequest()])(_vmrequest.getOriginalResRequest(),_vmrequest.getLambda(),num_svm);
+		map<ID,cServer*>::iterator iter_used_servers;
+		for (iter_used_servers = usedServers.begin();iter_used_servers != usedServers.end();iter_used_servers++)
+		{
+
+			//find all feasible servers and rearrange them with ascending order based on their residual capacities
+			if ((iter_used_servers->second)->enoughCapacity(arrival_time,departure_time,svm_request))
+			{
+				server_candidate_sorted.insert(make_pair(iter_used_servers->second->getTimeResidualCapacity(arrival_time,departure_time),iter_used_servers->second));
+				//tobePlaced.push_back(iter_used_servers->second);
+			}
+
+			if (server_candidate_sorted.size() >= num_svm)
+			{
+				_vmrequest.setSVMNumber(num_svm);
+				_vmrequest.setSVMResRequest(svm_request);
+				int svm_index = 0;
+				multimap<double,cServer*>::iterator iter_server_tobeplaced;
+				for (iter_server_tobeplaced = server_candidate_sorted.begin();iter_server_tobeplaced!=server_candidate_sorted.end();iter_server_tobeplaced++)
+				{
+					if (svm_index<num_svm)
+					{
+						(iter_server_tobeplaced->second)->setTimeResourceUsed(_vmrequest,svm_request);
+						_vmrequest.host_server_vec.push_back(iter_server_tobeplaced->second);
+						svm_index++;
+					}
+					else
+					{
+						break;
+					}
+
+				}
+
+				return;
+			}//have found enough resources available from already being used servers
+		}
+
+	}//
+
+	//place the current request on to an unused server
+	map<ID,cServer*>::iterator iter_unused_servers = unusedServers.begin();
+	for (;iter_unused_servers != unusedServers.end();iter_unused_servers++)
+	{
+
+		if ((iter_unused_servers->second)->enoughCapacity(arrival_time,departure_time,_vmrequest.getOriginalResRequest()))
+		{
+			//iter_unused_servers->second->setServOccupied(iter_unused_servers->second->getServOccupied() + _vmrequest.getOriginalResRequest());
+			iter_unused_servers->second->setTimeResourceUsed(_vmrequest,_vmrequest.getOriginalResRequest());
+			_vmrequest.setSVMNumber(1);
+			_vmrequest.setSVMResRequest(_vmrequest.getOriginalResRequest());
+			_vmrequest.host_server_vec.push_back(iter_unused_servers->second);
+			usedServers.insert(make_pair(iter_unused_servers->second->getServID(),iter_unused_servers->second));
+			unusedServers.erase(iter_unused_servers);
+
+			return;
+		}
+	}
+
+	return;
+}

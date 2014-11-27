@@ -34,6 +34,7 @@ public:
 	void setTimeResourceUsed(cVMRequest& _request,double _resource_used);
 	void setTimeWeight(cVMRequest& _request,double _resource_used);
 	double getTimeWeight(uint _time,uint _duration_time);
+	double getTimeResidualCapacity(uint _arrival_time,uint _departure_time);
 
 public:
 	cServer(void);
