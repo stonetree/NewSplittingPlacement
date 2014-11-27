@@ -222,6 +222,7 @@ void cCplexRuntime::ModelConstruction(cVMRequest& _request,vector<cServer>& _ser
 
 	uint duration_time = _request.getDurationTime();
 	uint arrival_time = _request.getArrivalTime();
+	
 	uint time_slot;
 	for (j=0;j<m_SizeJ;j++)
 	{
@@ -409,20 +410,28 @@ void cCplexRuntime::ModelConstruction(cVMRequest& _request,vector<cServer>& _ser
 
 	IloExpr obj(env);
 
-	for (i=0;i<m_SizeI;i++)
+	//for (i=0;i<m_SizeI;i++)
+	//{
+	//	for (j=0;j<m_SizeJ;j++)
+	//	{
+	//		for (k=0;k<m_SizeK;k++)
+	//		{
+	//			for (h=0;h<m_SizeH;h++)
+	//			{
+
+	//				double tem = (_server_vec[j]).getTimeWeight(_request.getArrivalTime(),_request.getDurationTime())*(_request.getDurationTime());
+	//				obj += VarX[i][j][k][h]*ParamR[i][k]*tem;
+
+	//			}
+	//		}
+	//	}
+	//}
+
+	for (j=0;j<m_SizeJ;j++)
 	{
-		for (j=0;j<m_SizeJ;j++)
+		for (time_slot = 0;time_slot<duration_time;time_slot++)
 		{
-			for (k=0;k<m_SizeK;k++)
-			{
-				for (h=0;h<m_SizeH;h++)
-				{
-
-					double tem = (_server_vec[j]).getTimeWeight(_request.getArrivalTime(),_request.getDurationTime())*(_request.getDurationTime());
-					obj += VarX[i][j][k][h]*ParamR[i][k]*tem;
-
-				}
-			}
+					obj += VarZ[j][time_slot];
 		}
 	}
 
