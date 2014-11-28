@@ -381,6 +381,21 @@ void outputResults(double _arai,vector<cServer>& _server_vec)
 	vector<cServer>::iterator iter_server;
 	map<uint,double>::iterator iter_server_used;
 
+	//for (iter_server = _server_vec.begin();iter_server != _server_vec.end();iter_server++)
+	//{
+	//	uint time_slot;
+	//	for (time_slot = 0;time_slot < total_time_slot;time_slot++)
+	//	{
+	//		iter_server_used = iter_server->server_time_residual.find(time_slot);
+	//		if (iter_server_used != iter_server->server_time_residual.end())
+	//		{
+	//			used_server_count++;
+	//			//break;
+	//		}
+	//	}
+	//}
+
+
 	for (iter_server = _server_vec.begin();iter_server != _server_vec.end();iter_server++)
 	{
 		uint time_slot;
@@ -390,20 +405,6 @@ void outputResults(double _arai,vector<cServer>& _server_vec)
 			if (iter_server_used != iter_server->server_time_residual.end())
 			{
 				used_server_count++;
-				//break;
-			}
-		}
-	}
-
-
-	for (iter_server = _server_vec.begin();iter_server != _server_vec.end();iter_server++)
-	{
-		uint time_slot;
-		for (time_slot = 0;time_slot < total_time_slot;time_slot++)
-		{
-			iter_server_used = iter_server->server_time_residual.find(time_slot);
-			if (iter_server_used != iter_server->server_time_residual.end())
-			{
 				average_utilization += iter_server_used->second;
 			}
 		}
@@ -411,7 +412,7 @@ void outputResults(double _arai,vector<cServer>& _server_vec)
 		
 	}
 
-	result_output<<_arai<<" "<<used_server_count<<" "<<average_utilization/used_server_count<<endl;
+	result_output<<_arai<<" "<<total_num<<" "<<used_server_count<<" "<<average_utilization/used_server_count<<endl;
 	result_output.close();
 	return; 
 }

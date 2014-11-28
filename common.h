@@ -34,6 +34,7 @@ extern double  lambda_high_100;
 
 extern double total_used;
 extern uint request_index;
+extern uint total_num;
 
 extern map<double,MappingFunction> resourceRequirement;
 extern map<ID,cServer*> usedServers;

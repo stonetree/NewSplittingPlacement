@@ -17,6 +17,7 @@ double total_used = 0;
 uint request_index = 0;
 
 uint total_time_slot = 60;
+uint total_num = 0;
 
 map<double,MappingFunction> resourceRequirement;
 map<ID,cServer*> usedServers;
@@ -49,56 +50,65 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	for (;input_iterator != resource_request_vec.end();input_iterator++)
 	{
-		unusedServers.clear();
-		usedServers.clear();
-		//initialize parameters
-		initializeInputParameters((*input_iterator));
-		
-		//servers
-		vector<cServer>  server_vec;
-
-		//Initialize servers
-		initializeServers(server_vec);
-
-		//vm requests
-		vector<cVMRequest> vmrequests_vec;
-		initializeVMRequests(vmrequests_vec);
-
-		//resource requirement
-		map<pair<double,uint>,double> resource_request;
-
-		//initialize the resource request
-		//initializeResourceRequest(*input_iterator,resource_request);
-		initializeResourceRequest();
-
-		vector<cVMRequest>::iterator iter_vm_request;
-
-		//allocate vm requests
-		request_index = 1;
-		
-		multimap<uint,cEvent> event_map;
-		initializeEvent(event_map,vmrequests_vec);
-		
-		//allocateGlobalVMRequest(vmrequests_vec,server_vec,resource_request);
-
-		multimap<uint,cEvent>::iterator iter_event = event_map.begin();
-		for (;iter_event != event_map.end();iter_event++)
+		for (total_num = 10;total_num<101;)
 		{
-			if (iter_event->second.getEventType() == ARRIVAL)
+			total_num_profile_55 = total_num;
+			total_num_servers = total_num;
+
+			unusedServers.clear();
+			usedServers.clear();
+			//initialize parameters
+			initializeInputParameters((*input_iterator));
+
+			//servers
+			vector<cServer>  server_vec;
+
+			//Initialize servers
+			initializeServers(server_vec);
+
+			//vm requests
+			vector<cVMRequest> vmrequests_vec;
+			initializeVMRequests(vmrequests_vec);
+
+			//resource requirement
+			map<pair<double,uint>,double> resource_request;
+
+			//initialize the resource request
+			//initializeResourceRequest(*input_iterator,resource_request);
+			initializeResourceRequest();
+
+			vector<cVMRequest>::iterator iter_vm_request;
+
+			//allocate vm requests
+			request_index = 1;
+
+			multimap<uint,cEvent> event_map;
+			initializeEvent(event_map,vmrequests_vec);
+
+			//allocateGlobalVMRequest(vmrequests_vec,server_vec,resource_request);
+
+			multimap<uint,cEvent>::iterator iter_event = event_map.begin();
+			for (;iter_event != event_map.end();iter_event++)
 			{
-				cout<<"The "<<request_index<<"th request"<<endl;
-				//allocateVMRequest(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
-				allocateVMRequestGreedy(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
-				//allocateVMRequestFFS(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
-				request_index++;
+				if (iter_event->second.getEventType() == ARRIVAL)
+				{
+					cout<<"The "<<request_index<<"th request"<<endl;
+					allocateVMRequest(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
+					//allocateVMRequestGreedy(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
+					//allocateVMRequestFFS(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
+					request_index++;
+				}
+				else
+				{
+					updateServCandidate(*(iter_event->second.getRequestPoint()));
+				}
 			}
-			else
-			{
-				updateServCandidate(*(iter_event->second.getRequestPoint()));
-			}
+			//collect output data
+			outputResults((*input_iterator)[0],server_vec);
+
+			total_num += 10;
 		}
-		//collect output data
-		outputResults((*input_iterator)[0],server_vec);
+		
 	}
 		
 	return 0;
