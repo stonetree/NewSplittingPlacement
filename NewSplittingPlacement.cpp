@@ -7,17 +7,19 @@
 #include "cServer.h"
 #include "cEvent.h"
 
-uint total_num_profile_55 = 100;
-uint total_num_profile_70 = 0;
+//uint total_num_profile_55 = 100;
+//uint total_num_profile_70 = 0;
 uint total_num_servers = 50;
+uint total_requests = 100;
 double total_server_capacity = 100;
-double splitable_percentage = 1;
+
+double splitable_percentage = -1;
 
 double total_used = 0;
 uint request_index = 0;
 
 uint total_time_slot = 60;
-uint total_num = 0;
+uint total_num = 1;
 
 map<double,MappingFunction> resourceRequirement;
 map<ID,cServer*> usedServers;
@@ -48,68 +50,75 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	vector<vector<double>>::iterator input_iterator = resource_request_vec.begin();
 
-	for (;input_iterator != resource_request_vec.end();input_iterator++)
+	double splittable_index = 0;
+	for (splittable_index = 0;splittable_index<1.1;splittable_index+=0.5)
 	{
-		for (total_num = 10;total_num<101;)
+		splitable_percentage = splittable_index;
+		total_num = 10;
+		input_iterator = resource_request_vec.begin();
+		for (;input_iterator != resource_request_vec.end();input_iterator++)
 		{
-			total_num_profile_55 = total_num;
-			total_num_servers = total_num;
-
-			unusedServers.clear();
-			usedServers.clear();
-			//initialize parameters
-			initializeInputParameters((*input_iterator));
-
-			//servers
-			vector<cServer>  server_vec;
-
-			//Initialize servers
-			initializeServers(server_vec);
-
-			//vm requests
-			vector<cVMRequest> vmrequests_vec;
-			initializeVMRequests(vmrequests_vec);
-
-			//resource requirement
-			map<pair<double,uint>,double> resource_request;
-
-			//initialize the resource request
-			//initializeResourceRequest(*input_iterator,resource_request);
-			initializeResourceRequest();
-
-			vector<cVMRequest>::iterator iter_vm_request;
-
-			//allocate vm requests
-			request_index = 1;
-
-			multimap<uint,cEvent> event_map;
-			initializeEvent(event_map,vmrequests_vec);
-
-			//allocateGlobalVMRequest(vmrequests_vec,server_vec,resource_request);
-
-			multimap<uint,cEvent>::iterator iter_event = event_map.begin();
-			for (;iter_event != event_map.end();iter_event++)
+			for (total_num = 10;total_num<101;total_num+=10)
 			{
-				if (iter_event->second.getEventType() == ARRIVAL)
-				{
-					cout<<"The "<<request_index<<"th request"<<endl;
-					allocateVMRequest(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
-					//allocateVMRequestGreedy(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
-					//allocateVMRequestFFS(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
-					request_index++;
-				}
-				else
-				{
-					updateServCandidate(*(iter_event->second.getRequestPoint()));
-				}
-			}
-			//collect output data
-			outputResults((*input_iterator)[0],server_vec);
+				total_requests = total_num;
+				total_num_servers = total_requests;
 
-			total_num += 10;
-		}
-		
-	}
+				unusedServers.clear();
+				usedServers.clear();
+				//initialize parameters
+				initializeInputParameters((*input_iterator));
+
+				//servers
+				vector<cServer>  server_vec;
+
+				//Initialize servers
+				initializeServers(server_vec);
+
+				//vm requests
+				vector<cVMRequest> vmrequests_vec;
+				initializeVMRequests(vmrequests_vec);
+
+				//resource requirement
+				map<pair<double,uint>,double> resource_request;
+
+				//initialize the resource request
+				//initializeResourceRequest(*input_iterator,resource_request);
+				initializeResourceRequest();
+
+				vector<cVMRequest>::iterator iter_vm_request;
+
+				//allocate vm requests
+				request_index = 1;
+
+				multimap<uint,cEvent> event_map;
+				initializeEvent(event_map,vmrequests_vec);
+
+				//allocateGlobalVMRequest(vmrequests_vec,server_vec,resource_request);
+
+				multimap<uint,cEvent>::iterator iter_event = event_map.begin();
+				for (;iter_event != event_map.end();iter_event++)
+				{
+					if (iter_event->second.getEventType() == ARRIVAL)
+					{
+						cout<<"The "<<request_index<<"th request"<<endl;
+						allocateVMRequest(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
+						//allocateVMRequestGreedy(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
+						//allocateVMRequestFFS(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
+						request_index++;
+					}
+					else
+					{
+						updateServCandidate(*(iter_event->second.getRequestPoint()));
+					}
+				}
+				//collect output data
+				outputResults((*input_iterator)[0],server_vec);
+			}//for(total_num=10
+
+		}//for(input_file...
+	}//For(splittable_index...
+	
+
 		
 	return 0;
 }

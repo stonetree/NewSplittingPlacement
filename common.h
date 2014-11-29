@@ -14,10 +14,11 @@ typedef IloArray<IloNumArray>                      TwoDMParam;    /*2维整型数组*
 
 typedef double (*MappingFunction)(double _original,double _lambda,uint _num_svm);
 
-extern uint total_num_profile_55;
-extern uint total_num_profile_70;
+//extern uint total_num_profile_55;
+//extern uint total_num_profile_70;
 extern double total_server_capacity;
 extern uint total_num_servers;
+extern uint total_requests;
 extern double splitable_percentage;
 extern uint total_time_slot;
 

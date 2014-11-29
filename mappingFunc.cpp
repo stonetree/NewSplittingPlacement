@@ -20,7 +20,7 @@ double ResourceRequirement55(double _original,double _lambda,uint _num_svm)
 	{
 		resource_required = 0;
 	}
-	else if (2 == _num_svm)
+	else if (4 == _num_svm)
 	{
 		resource_required = 49.5+32*atan((lambda_rate+2)/8);
 	}
@@ -57,7 +57,7 @@ double ResourceRequirement70(double _original,double _lambda,uint _num_svm)
 	{
 		resource_required = 0;
 	}
-	else if (2 == _num_svm)
+	else if (4 == _num_svm)
 	{
 		resource_required = 58+34*atan((lambda_rate+1)/7);
 	}
@@ -94,7 +94,7 @@ double ResourceRequirement80(double _original,double _lambda,uint _num_svm)
 	{
 		resource_required = 0;
 	}
-	else if (2 == _num_svm)
+	else if (4 == _num_svm)
 	{
 		resource_required = 67+36*atan((lambda_rate+1)/7);
 	}
@@ -131,13 +131,13 @@ double ResourceRequirement90(double _original,double _lambda,uint _num_svm)
 	{
 		resource_required = 0;
 	}
-	else if (2 == _num_svm)
+	else if (4 == _num_svm)
 	{
 		resource_required = 76.5+38.12*atan((lambda_rate+1)/6);
 	}
 	else if (3 == _num_svm)
 	{
-		resource_required = 62+29*atan((lambda_rate+4)/7.5);
+		resource_required = 63+29*atan((lambda_rate+4)/7.5);
 	}
 	else
 	{
@@ -168,7 +168,7 @@ double ResourceRequirement100(double _original,double _lambda,uint _num_svm)
 	{
 		resource_required = 0;
 	}
-	else if (2 == _num_svm)
+	else if (4 == _num_svm)
 	{
 		resource_required = 85.6+41.2*atan((lambda_rate+1)/5);
 	}

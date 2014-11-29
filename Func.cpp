@@ -101,7 +101,7 @@ void initializeServers(vector<cServer>& _server_vec)
 	_server_vec.clear();
 	unusedServers.clear();
 
-	for (server_index = 1;server_index <= total_num_profile_55 + total_num_profile_70;server_index++)
+	for (server_index = 1;server_index <= total_requests;server_index++)
 	{
 		_server_vec.push_back(cServer((ID)server_index,1/total_server_capacity,total_server_capacity));
 	}
@@ -148,13 +148,13 @@ void initializeVMRequests(vector<cVMRequest>& _vmrequests_vec)
 	r_arriva_time = gsl_rng_alloc(T);
 	r_duration_time = gsl_rng_alloc(T);
 	
-	for (request_index = 1;request_index <= total_num_profile_55 + total_num_profile_70;request_index++)
+	for (request_index = 1;request_index <= total_requests;request_index++)
 	{
 		random_num = gsl_rng_uniform_int (r, 2);
 		double_splittable = gsl_rng_uniform(r_splittable);
 
-		arrival_time = gsl_rng_uniform_int(r_duration_time, 10) + 5;
-		duration_time = gsl_rng_uniform_int(r_duration_time, 10) + 5;
+		arrival_time = gsl_rng_uniform_int(r_duration_time, 5) + 5;
+		duration_time = gsl_rng_uniform_int(r_duration_time, 5) + 5;
 
 		//Where the request is splittable.
 		if (double_splittable <= splitable_percentage)
@@ -412,7 +412,7 @@ void outputResults(double _arai,vector<cServer>& _server_vec)
 		
 	}
 
-	result_output<<_arai<<" "<<total_num<<" "<<used_server_count<<" "<<average_utilization/used_server_count<<endl;
+	result_output<<_arai<<" "<<total_num<<" "<<splitable_percentage<<" "<<used_server_count<<" "<<average_utilization/used_server_count<<endl;
 	result_output.close();
 	return; 
 }
