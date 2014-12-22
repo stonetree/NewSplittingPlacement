@@ -366,10 +366,16 @@ void allocateVMRequestGreedy(cVMRequest& _vmrequest,vector<cServer>& _server_vec
 	return;
 }
 
-void outputResults(double _arai,vector<cServer>& _server_vec)
+void outputResults(double _arai,vector<cServer>& _server_vec,vector<cVMRequest>& _vmrequest_vec)
 {
 	ofstream result_output;
+	ofstream result_vm_num;
 	result_output.open("output.txt",ios_base::app);
+	result_vm_num.open("output_vm.txt",ios_base::app);
+
+	double vm_1,vm_2,vm_3,vm_4;
+	vm_1 = vm_2 = vm_3 = vm_4 = 0;
+
 	if (!result_output)
 	{
 		cerr<<"unable to open output file: optimization.txt";
@@ -414,6 +420,30 @@ void outputResults(double _arai,vector<cServer>& _server_vec)
 
 	result_output<<_arai<<" "<<total_num<<" "<<splitable_percentage<<" "<<used_server_count<<" "<<average_utilization/used_server_count<<endl;
 	result_output.close();
+
+	vector<cVMRequest>::iterator iter_vm_request = _vmrequest_vec.begin();
+	for (;iter_vm_request != _vmrequest_vec.end();iter_vm_request++)
+	{
+		uint svm_num = iter_vm_request->getSVMNumber();
+		switch (svm_num)
+		{
+		case 1:
+			vm_1++;
+			break;
+		case 2:
+			vm_2++;
+			break;
+		case 3:
+			vm_3++;
+			break;
+		case 4:
+			vm_4++;
+			break;
+		}
+	}
+
+	result_vm_num<<_arai<<" "<<total_num<<" "<<splitable_percentage<<" "<<vm_1/total_num<<" "<<vm_2/total_num<<" "<<vm_3/total_num<<" "<<vm_4/total_num<<endl;
+	result_vm_num.close();
 	return; 
 }
 

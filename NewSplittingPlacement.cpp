@@ -58,7 +58,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		input_iterator = resource_request_vec.begin();
 		for (;input_iterator != resource_request_vec.end();input_iterator++)
 		{
-			for (total_num = 10;total_num<101;total_num+=10)
+			for (total_num = 100;total_num<1001;total_num+=100)
 			{
 				total_requests = total_num;
 				total_num_servers = total_requests;
@@ -101,8 +101,8 @@ int _tmain(int argc, _TCHAR* argv[])
 					if (iter_event->second.getEventType() == ARRIVAL)
 					{
 						cout<<"The "<<request_index<<"th request"<<endl;
-						allocateVMRequest(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
-						//allocateVMRequestGreedy(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
+						//allocateVMRequest(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
+						allocateVMRequestGreedy(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
 						//allocateVMRequestFFS(*(iter_event->second.getRequestPoint()),server_vec,resource_request);
 						request_index++;
 					}
@@ -112,7 +112,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 				}
 				//collect output data
-				outputResults((*input_iterator)[0],server_vec);
+				outputResults((*input_iterator)[0],server_vec,vmrequests_vec);
 			}//for(total_num=10
 
 		}//for(input_file...
