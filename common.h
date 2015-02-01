@@ -16,11 +16,12 @@ typedef double (*MappingFunction)(double _original,double _lambda,uint _num_svm)
 
 //extern uint total_num_profile_55;
 //extern uint total_num_profile_70;
-extern double total_server_capacity;
+extern double server_capacity;
 extern uint total_num_servers;
 extern uint total_requests;
 extern double splitable_percentage;
 extern uint total_time_slot;
+extern const double total_running_time;
 
 extern double  lambda_low_55;
 extern double  lambda_high_55;
@@ -36,6 +37,9 @@ extern double  lambda_high_100;
 extern double total_used;
 extern uint request_index;
 extern uint total_num;
+extern const double total_running_time;
+extern double arrival_rate_per_100;
+extern double departure_rate;
 
 extern map<double,MappingFunction> resourceRequirement;
 extern map<ID,cServer*> usedServers;
@@ -45,7 +49,7 @@ extern void initializeServers(vector<cServer>& _server_vec);
 extern void initializeVMRequests(vector<cVMRequest>& _vmrequests_vec);
 extern void initializeResourceRequest(vector<double>& _input_cap,map<pair<double,uint>,double>& _resource_request);
 extern void initializeResourceRequest();
-extern void initializeEvent(multimap<uint,cEvent>& _event_map,vector<cVMRequest>& _request_vec);
+extern void initializeEvent(multimap<double,cEvent>& _event_map,vector<cVMRequest>& _request_vec);
 extern void allocateVMRequest(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
 //extern void allocateGlobalVMRequest(vector<cVMRequest>& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
 extern void allocateVMRequestGreedy(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);

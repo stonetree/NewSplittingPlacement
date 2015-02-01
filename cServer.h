@@ -9,10 +9,12 @@ private:
 	double server_weight;
 	double server_capacity;
 	double server_occupied;
+	double server_residual;
+	double total_resources_used;
 
 public:
-	map<uint,double> server_time_weight;
-	map<uint,double> server_time_residual;
+	map<TIME_T,double> server_time_weight;
+	map<TIME_T,double> server_time_residual;
 
 public:
 	void setServID(ID _id) {server_id = _id;}
@@ -29,16 +31,21 @@ public:
 
 public:
 	double getRemainingCapacity(void){return server_capacity - server_occupied;}
-	bool enoughCapacity(uint _arrival_time,uint _departure_time,double _required);
-	double getTimeResidualCapacity(uint _time_slot);
+	bool isEmpty(void) {return server_residual == server_capacity;}
+	bool enoughCapacity(TIME_T _arrival_time,TIME_T _departure_time,double _required);
+	bool enoughResidual(double _required){return _required <= server_residual;}
+	void allocateResidual(double _required,TIME_T _arrival_time,TIME_T _duration_time);
+	void releaseResidual(double _required){server_residual += _required;}
+	double getTimeResidualCapacity(TIME_T _time_slot);
 	void setTimeResourceUsed(cVMRequest& _request,double _resource_used);
 	void setTimeWeight(cVMRequest& _request,double _resource_used);
-	double getTimeWeight(uint _time,uint _duration_time);
-	double getTimeResidualCapacity(uint _arrival_time,uint _departure_time);
+	double getTimeWeight(TIME_T _time,TIME_T _duration_time);
+	double getTimeResidualCapacity(TIME_T _arrival_time,TIME_T _departure_time);
+	double getTotalResUsed(void){return total_resources_used;}
 
 public:
 	cServer(void);
-	cServer(ID _id,double _weight,double _capacity,double _occupied = 0):server_id(_id),server_weight(_weight),server_capacity(_capacity),server_occupied(_occupied){}
+	cServer(ID _id,double _weight,double _capacity,double _occupied = 0,double _residual = 0):server_id(_id),server_weight(_weight),server_capacity(_capacity),server_residual(_capacity),server_occupied(_occupied){}
 	cServer(const cServer& _server);
 	cServer& operator=(const cServer& _server);
 	~cServer(void);

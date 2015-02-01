@@ -21,6 +21,7 @@ cVMRequest& cVMRequest::operator=(const cVMRequest& _vm_request)
 	if (this != &_vm_request)
 	{
 		request_id = _vm_request.request_id;
+		isServed = _vm_request.isServed;
 		original_res_request = _vm_request.original_res_request;
 		num_svm = _vm_request.num_svm;
 		svm_res_request = _vm_request.svm_res_request;

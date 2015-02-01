@@ -9,14 +9,17 @@
 
 //uint total_num_profile_55 = 100;
 //uint total_num_profile_70 = 0;
+const double total_running_time =  50000;
 uint total_num_servers = 50;
 uint total_requests = 100;
-double total_server_capacity = 100;
+double server_capacity = 100;
 
 double splitable_percentage = -1;
 
 double total_used = 0;
 uint request_index = 0;
+double arrival_rate_per_100 = 0;
+double departure_rate = 1.0/1000;
 
 uint total_time_slot = 60;
 uint total_num = 1;
@@ -51,17 +54,21 @@ int _tmain(int argc, _TCHAR* argv[])
 	vector<vector<double>>::iterator input_iterator = resource_request_vec.begin();
 
 	double splittable_index = 0;
-	for (splittable_index = 0;splittable_index<1.1;splittable_index+=0.5)
+	for (;input_iterator != resource_request_vec.end();input_iterator++)
 	{
-		splitable_percentage = splittable_index;
-		total_num = 10;
-		input_iterator = resource_request_vec.begin();
-		for (;input_iterator != resource_request_vec.end();input_iterator++)
+		//iterations over the workload applications handled
+		for (splittable_index = 0;splittable_index<1.1;splittable_index+=0.5)
 		{
-			for (total_num = 100;total_num<1001;total_num+=100)
+			//iterations over the proportion of splittable applications
+			splitable_percentage = splittable_index;
+			total_num = 10;
+			//input_iterator = resource_request_vec.begin();
+			for (arrival_rate_per_100 = 6;arrival_rate_per_100 <= 10; arrival_rate_per_100++)
+			//iterations over the application arrival rates
+			//for (total_num = 100;total_num<1001;total_num+=100)
 			{
-				total_requests = total_num;
-				total_num_servers = total_requests;
+				//total_requests = total_num;
+				//total_num_servers = total_requests;
 
 				unusedServers.clear();
 				usedServers.clear();
@@ -77,6 +84,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				//vm requests
 				vector<cVMRequest> vmrequests_vec;
 				initializeVMRequests(vmrequests_vec);
+				total_requests = vmrequests_vec.size();
 
 				//resource requirement
 				map<pair<double,uint>,double> resource_request;
@@ -90,12 +98,12 @@ int _tmain(int argc, _TCHAR* argv[])
 				//allocate vm requests
 				request_index = 1;
 
-				multimap<uint,cEvent> event_map;
+				multimap<double,cEvent> event_map;
 				initializeEvent(event_map,vmrequests_vec);
 
 				//allocateGlobalVMRequest(vmrequests_vec,server_vec,resource_request);
 
-				multimap<uint,cEvent>::iterator iter_event = event_map.begin();
+				multimap<double,cEvent>::iterator iter_event = event_map.begin();
 				for (;iter_event != event_map.end();iter_event++)
 				{
 					if (iter_event->second.getEventType() == ARRIVAL)
@@ -113,12 +121,9 @@ int _tmain(int argc, _TCHAR* argv[])
 				}
 				//collect output data
 				outputResults((*input_iterator)[0],server_vec,vmrequests_vec);
-			}//for(total_num=10
-
-		}//for(input_file...
-	}//For(splittable_index...
-	
-
+			}//for (arrival_rate_per_100
+		}//For(splittable_index...
+	}//for(input_file..
 		
 	return 0;
 }
