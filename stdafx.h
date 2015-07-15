@@ -27,7 +27,7 @@
 #include "ilcplex/ilocplex.h"
 #include "ilcplex/ilocplexi.h"
 
-typedef double TIME_T;
+typedef unsigned int TIME_T;
 typedef unsigned int ID;
 typedef unsigned int uint;
 enum event_type{ARRIVAL,DEPARTURE};

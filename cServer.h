@@ -34,8 +34,9 @@ public:
 	bool isEmpty(void) {return server_residual == server_capacity;}
 	bool enoughCapacity(TIME_T _arrival_time,TIME_T _departure_time,double _required);
 	bool enoughResidual(double _required){return _required <= server_residual;}
+	double getResidual(void){return server_residual;}
 	void allocateResidual(double _required,TIME_T _arrival_time,TIME_T _duration_time);
-	void releaseResidual(double _required){server_residual += _required;}
+	void releaseResidual(double _required);
 	double getTimeResidualCapacity(TIME_T _time_slot);
 	void setTimeResourceUsed(cVMRequest& _request,double _resource_used);
 	void setTimeWeight(cVMRequest& _request,double _resource_used);
@@ -45,7 +46,7 @@ public:
 
 public:
 	cServer(void);
-	cServer(ID _id,double _weight,double _capacity,double _occupied = 0,double _residual = 0):server_id(_id),server_weight(_weight),server_capacity(_capacity),server_residual(_capacity),server_occupied(_occupied){}
+	cServer(ID _id,double _weight,double _capacity,double _occupied = 0,double _residual = 0):server_id(_id),server_weight(_weight),server_capacity(_capacity),server_residual(_capacity),server_occupied(_occupied),total_resources_used(0){}
 	cServer(const cServer& _server);
 	cServer& operator=(const cServer& _server);
 	~cServer(void);

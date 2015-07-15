@@ -40,7 +40,7 @@ cServer& cServer::operator=(const cServer& _server)
 
 double cServer::getTimeResidualCapacity(TIME_T _time_slot)
 {
-	map<double,double>::iterator iter_time_residual_capacity;
+	map<TIME_T,double>::iterator iter_time_residual_capacity;
 	iter_time_residual_capacity = server_time_residual.find(_time_slot);
 	if (iter_time_residual_capacity != server_time_residual.end())
 	{
@@ -155,6 +155,12 @@ void cServer::allocateResidual(double _required,TIME_T _arrival_time,TIME_T _dur
 {
 	server_residual -= _required;
 	
+	if (server_residual < -1)
+	{
+		cout<<"The number of residual resources less than 0!!"<<endl;
+		exit(0);
+	}
+	
 	if (_arrival_time + _duration_time > total_running_time)
 	{
 		total_resources_used += _required * (total_running_time - _arrival_time);
@@ -163,5 +169,18 @@ void cServer::allocateResidual(double _required,TIME_T _arrival_time,TIME_T _dur
 	{
 		total_resources_used += _required * _duration_time;
 	}
+	return;
+}
+
+void cServer::releaseResidual(double _required)
+{
+	server_residual += _required;
+
+	if (server_residual > server_capacity + 1)
+	{
+		cout<<"The number of residual resources is more than the capacity!!!"<<endl;
+		exit(0);
+	}
+
 	return;
 }

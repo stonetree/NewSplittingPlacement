@@ -7,9 +7,10 @@ class cEvent;
 /************************************************************************/
 /* For cplex                                                            */
 typedef IloArray<IloIntVarArray>                      TwoDM;    /*2维整型变量数组*/
+typedef IloArray<IloNumVarArray>                      TwoNumDM;    /*2维变量数组*/
 typedef IloArray<IloArray<IloIntVarArray>>            ThreeDM;  /*3维整型变量数组*/
 typedef IloArray<IloArray<IloArray<IloIntVarArray>>>  FourDM;  /*4维整型变量数组*/
-typedef IloArray<IloNumArray>                      TwoDMParam;    /*2维整型数组*/
+typedef IloArray<IloNumArray>                      TwoDMParam;    /*2维数组*/
 /************************************************************************/
 
 typedef double (*MappingFunction)(double _original,double _lambda,uint _num_svm);
@@ -21,7 +22,9 @@ extern uint total_num_servers;
 extern uint total_requests;
 extern double splitable_percentage;
 extern uint total_time_slot;
-extern const double total_running_time;
+extern const TIME_T total_running_time;
+extern bool cplex_flag;
+extern uint total_server_used;
 
 extern double  lambda_low_55;
 extern double  lambda_high_55;
@@ -37,7 +40,6 @@ extern double  lambda_high_100;
 extern double total_used;
 extern uint request_index;
 extern uint total_num;
-extern const double total_running_time;
 extern double arrival_rate_per_100;
 extern double departure_rate;
 
@@ -49,8 +51,8 @@ extern void initializeServers(vector<cServer>& _server_vec);
 extern void initializeVMRequests(vector<cVMRequest>& _vmrequests_vec);
 extern void initializeResourceRequest(vector<double>& _input_cap,map<pair<double,uint>,double>& _resource_request);
 extern void initializeResourceRequest();
-extern void initializeEvent(multimap<double,cEvent>& _event_map,vector<cVMRequest>& _request_vec);
-extern void allocateVMRequest(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
+extern void initializeEvent(multimap<TIME_T,cEvent>& _event_map,vector<cVMRequest>& _request_vec);
+extern void allocateVMRequest(double _arai,vector<cVMRequest>& _vmrequest_vec,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
 //extern void allocateGlobalVMRequest(vector<cVMRequest>& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
 extern void allocateVMRequestGreedy(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);
 extern void allocateVMRequestFFS(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request);

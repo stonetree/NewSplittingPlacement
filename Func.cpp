@@ -154,13 +154,18 @@ void initializeVMRequests(vector<cVMRequest>& _vmrequests_vec)
 	while (1)
 	//for (request_index = 1;request_index <= total_requests;request_index++)
 	{
-		random_num = gsl_rng_uniform_int (r, 2);
+		random_num = gsl_rng_uniform_int (r, 1);
 		double_splittable = gsl_rng_uniform(r_splittable);
 
-		interval_time = gsl_ran_exponential(r_arriva_time,100/arrival_rate_per_100);
-		arrival_time = current_time + interval_time;
+		interval_time = (TIME_T)gsl_ran_exponential(r_arriva_time,100/arrival_rate_per_100);
+		arrival_time = (TIME_T)(current_time + interval_time);
 		current_time = arrival_time;
-		duration_time = gsl_ran_exponential(r_duration_time,1/departure_rate);
+		duration_time = (TIME_T)gsl_ran_exponential(r_duration_time,1/departure_rate);
+
+		if (duration_time < 1)
+		{
+			duration_time+=1;
+		}
 
 		//Where the request is splittable.
 		if (double_splittable <= splitable_percentage)
@@ -278,12 +283,12 @@ void initializeEvent(multimap<TIME_T,cEvent>& _event_map,vector<cVMRequest>& _re
 //	return;
 //}
 
-void allocateVMRequest(cVMRequest& _vmrequest,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request)
+void allocateVMRequest(double _arai,vector<cVMRequest>& _vmrequest_vec,vector<cServer>& _server_vec,map<pair<double,uint>,double>& _resource_request)
 {
 	cCplexRuntime *p_cplex_runingtime = new cCplexRuntime;
-	p_cplex_runingtime->VarInit(_vmrequest,_server_vec,_resource_request);
-	p_cplex_runingtime->ModelConstruction(_vmrequest,_server_vec);
-	p_cplex_runingtime->ProblemSolve(_vmrequest,_server_vec,_resource_request);
+	p_cplex_runingtime->VarInit(_vmrequest_vec,_server_vec,_resource_request);
+	p_cplex_runingtime->ModelConstruction(_vmrequest_vec,_server_vec);
+	p_cplex_runingtime->ProblemSolve(_arai,_vmrequest_vec,_server_vec,_resource_request);
 
 	free(p_cplex_runingtime);
 	
@@ -318,7 +323,7 @@ void allocateVMRequestGreedy(cVMRequest& _vmrequest,vector<cServer>& _server_vec
 	//find servers with enough capacity from those servers that have already been used.
 	uint i;
 
-	uint max_num_svm = 4;
+	uint max_num_svm = 2;
 	if (!_vmrequest.getVMRequestSplittable())
 	{
 		max_num_svm = 1;
@@ -329,13 +334,24 @@ void allocateVMRequestGreedy(cVMRequest& _vmrequest,vector<cServer>& _server_vec
 
 		num_svm = i;
 		svm_request = (resourceRequirement[_vmrequest.getOriginalResRequest()])(_vmrequest.getOriginalResRequest(),_vmrequest.getLambda(),i);
-		map<ID,cServer*>::iterator iter_used_servers;
+		
+		map<ID,cServer*>::iterator iter_used_servers;		
+		//rearranging the set of already used physical servers in descending order according to their residual resource
+		multimap<double,cServer*> sort_used_servers;
 		for (iter_used_servers = usedServers.begin();iter_used_servers != usedServers.end();iter_used_servers++)
 		{
+			sort_used_servers.insert(make_pair(iter_used_servers->second->getResidual(),iter_used_servers->second));
+		}
 
-			if ((iter_used_servers->second)->enoughResidual(svm_request))
+
+		//SVMs belonging to the same application should be deployed on different physical servers
+		multimap<double,cServer*>::reverse_iterator riter_sort_used_servers;
+		for (riter_sort_used_servers = sort_used_servers.rbegin();riter_sort_used_servers != sort_used_servers.rend();riter_sort_used_servers++)
+		{
+
+			if ((riter_sort_used_servers->second)->enoughResidual(svm_request))
 			{
-				tobePlaced.push_back(iter_used_servers->second);
+				tobePlaced.push_back(riter_sort_used_servers->second);
 			}
 
 			if (tobePlaced.size() == i)
@@ -449,30 +465,29 @@ void outputResults(double _arai,vector<cServer>& _server_vec,vector<cVMRequest>&
 		if (iter_vm_request->getServed() == true)
 		{
 			counting_accepted_requests++;
-		}
-
-		uint svm_num = iter_vm_request->getSVMNumber();
-		switch (svm_num)
-		{
-		case 1:
-			vm_1++;
-			break;
-		case 2:
-			vm_2++;
-			break;
-		case 3:
-			vm_3++;
-			break;
-		case 4:
-			vm_4++;
-			break;
+			uint svm_num = iter_vm_request->getSVMNumber();
+			switch (svm_num)
+			{
+			case 1:
+				vm_1++;
+				break;
+			case 2:
+				vm_2++;
+				break;
+			case 3:
+				vm_3++;
+				break;
+			case 4:
+				vm_4++;
+				break;
+			}
 		}
 	}
 
-	result_output<<_arai<<" "<<arrival_rate_per_100<<" "<<splitable_percentage<<" "<<(double)counting_accepted_requests/total_requests<<" "<<(double)total_resource_used/(total_num_servers*server_capacity*total_running_time)<<" "<<total_num_servers/(double)counting_accepted_requests<<endl;
+	result_output<<_arai<<" "<<arrival_rate_per_100<<" "<<splitable_percentage<<" "<<(double)total_server_used<<" "<<(double)counting_accepted_requests/_vmrequest_vec.size()<<" "<<(double)total_resource_used/(total_num_servers*server_capacity*total_running_time)<<" "<<endl;
 	result_output.close();
 
-	result_vm_num<<_arai<<" "<<arrival_rate_per_100<<" "<<splitable_percentage<<" "<<vm_1/total_num<<" "<<vm_2/total_num<<" "<<vm_3/total_num<<" "<<vm_4/total_num<<endl;
+	result_vm_num<<_arai<<" "<<arrival_rate_per_100<<" "<<splitable_percentage<<" "<<vm_1/counting_accepted_requests<<" "<<vm_2/counting_accepted_requests<<" "<<vm_3/counting_accepted_requests<<" "<<vm_4/counting_accepted_requests<<endl;
 	result_vm_num.close();
 	return; 
 }
@@ -513,6 +528,13 @@ void updateServCandidate(cVMRequest& _vmrequest)
 	{
 		//release the resources occupied by the request
 		(*iter_host_server)->releaseResidual(_vmrequest.getSVMResRequest());
+
+		if (cplex_flag == true)
+		{
+			//cplex is using to find the optimal solution
+			//following codes will not be executed
+			continue;
+		}
 
 		iter_used_server = usedServers.find((*iter_host_server)->getServID());
 		if (iter_used_server == usedServers.end())
